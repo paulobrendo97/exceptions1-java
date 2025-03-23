@@ -7,27 +7,25 @@ import java.util.Locale;
 import java.util.Scanner;
 
 import model.entities.Reservation;
+import model.exception.DomainException;
 
 public class Program {
 
-	public static void main(String[] args) throws ParseException {
+	public static void main(String[] args) {
 
 		Locale.setDefault(Locale.US);
 		Scanner sc = new Scanner(System.in);
 
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyy");
 
-		System.out.print("Room Number: ");
-		int number = sc.nextInt();
-		System.out.print("Check-in Date (dd/MM/yyy)");
-		Date checkIn = sdf.parse(sc.next());
-		System.out.print("Check-Out Date (dd/MM/yyy)");
-		Date checkOut = sdf.parse(sc.next());
+		try {
+			System.out.print("Room Number: ");
+			int number = sc.nextInt();
+			System.out.print("Check-in Date (dd/MM/yyy)");
+			Date checkIn = sdf.parse(sc.next());
+			System.out.print("Check-Out Date (dd/MM/yyy)");
+			Date checkOut = sdf.parse(sc.next());
 
-		if (!checkOut.after(checkIn)) {
-			System.out.println("Error in reservation: Check-out date must be after check-in date");
-		}
-		else {
 			Reservation reservation = new Reservation(number, checkIn, checkOut);
 			System.out.println("Reservation: " + reservation);
 
@@ -38,16 +36,21 @@ public class Program {
 			System.out.print("Check-Out Date (dd/MM/yyy)");
 			checkOut = sdf.parse(sc.next());
 
-			String error = reservation.updateDates(checkIn, checkOut);
-			if (error != null) {
-				System.err.println("Error in reservation: " + error);
-			} 
-			else {
-				System.out.println("Reservation: " + reservation);
-			}
-
-			sc.close();
-
+			reservation.updateDates(checkIn, checkOut);
+			System.out.println("Reservation: " + reservation);
+			
 		}
+		catch (ParseException e) {
+			System.out.println("Invalid date format");
+		} 
+		catch (DomainException e) {
+			System.out.println("Error in reservation " + e.getMessage());
+		}
+		catch (RuntimeException e) {
+			System.out.println("Unexpected error");
+		}
+
+		sc.close();
+
 	}
 }
